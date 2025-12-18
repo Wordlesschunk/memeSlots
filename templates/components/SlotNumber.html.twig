@@ -1,0 +1,162 @@
+<div{{ attributes }}>
+    <div id="spinner"
+         data-number="6"
+         data-spin-ms="6000">
+    </div>
+</div>
+
+<style>
+    .spinner {
+        display: inline-flex;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 14px;
+        background: radial-gradient(circle at top, #202040 0, #050512 65%);
+        box-shadow:
+            inset 0 5px 8px rgba(255,255,255,.08),
+            inset 0 -3px 10px rgba(0,0,0,.8),
+            0 18px 45px rgba(0,0,0,.85);
+    }
+
+    .reel {
+        position: relative;
+        overflow: hidden;
+        width: 60px;
+        height: 80px;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #101020, #05050b);
+        box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,.06),
+            0 6px 12px rgba(0,0,0,.8);
+    }
+
+    .reel::before,
+    .reel::after {
+        content:"";
+        position:absolute;
+        left:0; right:0;
+        height:16px;
+        pointer-events:none;
+        z-index:2;
+    }
+
+    .reel::before {
+        top:0;
+        background:linear-gradient(to bottom, rgba(0,0,0,.85), transparent);
+    }
+
+    .reel::after {
+        bottom:0;
+        background:linear-gradient(to top, rgba(0,0,0,.85), transparent);
+    }
+
+    .digit-strip {
+        position:absolute;
+        top:0; left:0;
+        transition:none;
+        will-change:transform;
+    }
+
+    .digit {
+        height:80px;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:42px;
+        font-weight:700;
+        color:#fff;
+        text-shadow:
+            0 0 8px rgba(0,0,0,.9),
+            0 0 14px rgba(255,255,255,.4);
+    }
+
+    .digit.glow {
+        color:#ffeb85;
+        text-shadow:
+            0 0 10px rgba(255,239,150,.9),
+            0 0 20px rgba(255,239,150,.7);
+    }
+</style>
+
+<script>
+    (function () {
+
+        const container = document.getElementById("spinner");
+        const numberStr = (container.dataset.number || "0").replace(/\D/g, "") || "0";
+        const spinMsAttr = parseInt(container.dataset.spinMs, 10);
+        const totalSpinMs = isNaN(spinMsAttr) ? 2000 : spinMsAttr;
+
+        // how many full 0-9 revolutions before stopping
+        const EXTRA_SPINS_BASE = 4;
+        const EXTRA_SPINS_VARIANCE = 2;
+        const STAGGER_PER_REEL_MS = 150;
+
+        function createReels(valueStr) {
+            container.innerHTML = "";
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "spinner";
+
+            valueStr.split("").forEach(() => {
+                const reel = document.createElement("div");
+                reel.className = "reel";
+
+                const strip = document.createElement("div");
+                strip.className = "digit-strip";
+
+                // repeat 0-9 many times to allow long spin
+                const loops = EXTRA_SPINS_BASE + EXTRA_SPINS_VARIANCE + 2;
+                for (let loop = 0; loop < loops; loop++) {
+                    for (let i = 0; i <= 9; i++) {
+                        const d = document.createElement("div");
+                        d.className = "digit";
+                        d.textContent = i;
+                        strip.appendChild(d);
+                    }
+                }
+
+                reel.appendChild(strip);
+                wrapper.appendChild(reel);
+            });
+
+            container.appendChild(wrapper);
+        }
+
+        function spinTo(valueStr) {
+            const wrapper = container.querySelector(".spinner");
+            const reels = Array.from(wrapper.children);
+            const digits = valueStr.split("");
+
+            reels.forEach((reel, idx) => {
+                const strip = reel.querySelector(".digit-strip");
+                const targetDigit = parseInt(digits[idx], 10) || 0;
+                const digitHeight = strip.firstElementChild.offsetHeight;
+
+                strip.style.transition = "none";
+                strip.style.transform = "translateY(0px)";
+                void strip.offsetHeight;
+
+                const extraSpins = EXTRA_SPINS_BASE +
+                    Math.floor(Math.random() * (EXTRA_SPINS_VARIANCE + 1));
+
+                const steps = extraSpins * 10 + targetDigit;
+                const distance = digitHeight * steps;
+
+                const duration = (totalSpinMs + idx * STAGGER_PER_REEL_MS) / 1000;
+                const easing = "cubic-bezier(0.05, 0.9, 0.2, 1)";
+
+                requestAnimationFrame(() => {
+                    strip.style.transition = `transform ${duration}s ${easing}`;
+                    strip.style.transform = `translateY(${-distance}px)`;
+                });
+            });
+        }
+
+        createReels(numberStr);
+
+        window.addEventListener("load", () => {
+            spinTo(numberStr);
+        });
+
+    })();
+</script>

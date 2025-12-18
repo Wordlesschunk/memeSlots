@@ -360,7 +360,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         }>,
  *     },
  *     property_access?: bool|array{ // Property access configuration
- *         enabled?: bool, // Default: false
+ *         enabled?: bool, // Default: true
  *         magic_call?: bool, // Default: false
  *         magic_get?: bool, // Default: true
  *         magic_set?: bool, // Default: true
@@ -368,11 +368,11 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         throw_exception_on_invalid_property_path?: bool, // Default: true
  *     },
  *     type_info?: bool|array{ // Type info configuration
- *         enabled?: bool, // Default: false
+ *         enabled?: bool, // Default: true
  *         aliases?: array<string, scalar|null>,
  *     },
  *     property_info?: bool|array{ // Property info configuration
- *         enabled?: bool, // Default: false
+ *         enabled?: bool, // Default: true
  *         with_constructor_extractor?: bool, // Registers the constructor extractor. // Default: true
  *     },
  *     cache?: array{ // Cache configuration
@@ -927,6 +927,18 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         ...<mixed>
  *     },
  * }
+ * @psalm-type TwigComponentConfig = array{
+ *     defaults?: array<string, string|array{ // Default: ["__deprecated__use_old_naming_behavior"]
+ *         template_directory?: scalar|null, // Default: "components"
+ *         name_prefix?: scalar|null, // Default: ""
+ *     }>,
+ *     anonymous_template_directory?: scalar|null, // Defaults to `components`
+ *     profiler?: bool, // Enables the profiler for Twig Component (in debug mode) // Default: "%kernel.debug%"
+ *     controllers_json?: scalar|null, // Deprecated: The "twig_component.controllers_json" config option is deprecated, and will be removed in 3.0. // Default: null
+ * }
+ * @psalm-type LiveComponentConfig = array{
+ *     secret?: scalar|null, // The secret used to compute fingerprints and checksums // Default: "%kernel.secret%"
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -936,6 +948,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     monolog?: MonologConfig,
  *     stimulus?: StimulusConfig,
  *     twig_extra?: TwigExtraConfig,
+ *     twig_component?: TwigComponentConfig,
+ *     live_component?: LiveComponentConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -948,6 +962,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         maker?: MakerConfig,
  *         stimulus?: StimulusConfig,
  *         twig_extra?: TwigExtraConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -958,6 +974,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         monolog?: MonologConfig,
  *         stimulus?: StimulusConfig,
  *         twig_extra?: TwigExtraConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -969,6 +987,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         monolog?: MonologConfig,
  *         stimulus?: StimulusConfig,
  *         twig_extra?: TwigExtraConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
